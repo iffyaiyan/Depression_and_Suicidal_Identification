@@ -4,18 +4,16 @@
 
 import numpy as np
 import pandas as pd
-
 import torch
-import transformers as ppb
 import tensorflow as tf
 import tensorflow_hub as hub
-
+from transformers import BertModel, BertTokenizer
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import cross_val_score
 from sklearn.naive_bayes import MultinomialNB
-
+import os
 
 # Google Universal Sentence Encoder (GUSE) Transformer
 
@@ -82,14 +80,16 @@ def getFeatures(batch_1):
   with torch.no_grad():
       last_hidden_states = model(input_ids, attention_mask=attention_mask)
 
-  # features = last_hidden_states[0][:,0,:].numpy() # use this line if you want the 2D BERT features
+  features = last_hidden_states[0][:,0,:].numpy() # use this line if you want the 2D BERT features
   # features = last_hidden_states[0].numpy() # use this line if you want the 3D BERT features 
 
   return features
+
+
 
 df = pd.read_csv('real-training-set.csv', delimiter=',')
 df = df[['selftext', 'is_suicide']]
 df = df.rename(columns={'selftext': 0, 'is_suicide': 1})
 
 bert_features = getFeatures(df)
-np.savetxt("bert-training-features.csv", bert_features, delimiter=',')
+np.savetxt("bert-training-features.csv", bert_features, delimiter=',')                    

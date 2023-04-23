@@ -2,14 +2,11 @@
 
 # This notebook contains the implementation of our three deep neural classifiers with correct hyperparameters.
 
-import tensorflow
-from tensorflow import keras
+import tensorflow as tf
 from tensorflow.keras import layers
-from keras.callbacks import ModelCheckpoint
+from tensorflow.keras.callbacks import ModelCheckpoint
+import pandas as pd
 
-from keras.models import Sequential
-
-from tensorflow.keras.layers import Dense, Activation, Embedding, Flatten, MaxPooling1D, Dropout, Conv1D, Input, LSTM, SpatialDropout1D, Bidirectional
 
 train_features = pd.read_csv('train_features.csv', delimiter=',') # load the features after creating them
 test_feautres = pd.read_csv('test_features.csv', delimiter=',') # load the features after creating them
@@ -24,66 +21,67 @@ batch_size = 32
 
 # Convolutional Neural Network
 
-cnn = Sequential()
-
 cnn_path = "cnn"
-
 filters = 3
-kernal = 2
+kernel_size = 2
 
-cnn.add(Input(shape=(512,768)))
-cnn.add(Conv1D(filters= filters, kernel_size = kernal, activation='relu'))
-cnn.add(Dropout(0.25))
-cnn.add(Flatten())
-cnn.add(Dense(64, activation='relu', kernel_initializer='he_uniform'))
-cnn.add(Dense(1, activation='sigmoid'))
+cnn_model = tf.keras.Sequential([
+    layers.Input(shape=(512,768)),
+    layers.Conv1D(filters=filters, kernel_size=kernel_size, activation='relu'),
+    layers.Dropout(0.25),
+    layers.Flatten(),
+    layers.Dense(64, activation='relu', kernel_initializer='he_uniform'),
+    layers.Dense(1, activation='sigmoid')
+])
 
-cnn.compile(optimizer='adam',
+cnn_model.compile(optimizer='adam',
               loss='binary_crossentropy',
               metrics=['accuracy'])
+
+cnn_model.summary()
 
 mc = ModelCheckpoint(cnn_path + ".h5", monitor='val_accuracy', mode='max', verbose=1, save_best_only=True)
 
-cnn.summary()
-
 # Fully Dense Network
-dense = Sequential()
 
 dense_path = "dense"
 
-dense = Sequential()
-dense.add(Input(shape=(512,)))
-dense.add(Dense(128, activation='relu', kernel_initializer='he_uniform'))
-dense.add(Dense(64, activation='relu', kernel_initializer='he_uniform'))
-dense.add(Dense(1, activation='sigmoid'))
+dense_model = tf.keras.Sequential([
+    layers.Input(shape=(512,)),
+    layers.Dense(128, activation='relu', kernel_initializer='he_uniform'),
+    layers.Dense(64, activation='relu', kernel_initializer='he_uniform'),
+    layers.Dense(1, activation='sigmoid')
+])
 
-dense.compile(optimizer='adam',
+dense_model.compile(optimizer='adam',
               loss='binary_crossentropy',
               metrics=['accuracy'])
+
+dense_model.summary()
 
 mc = ModelCheckpoint(dense_path + ".h5", monitor='val_accuracy', mode='max', verbose=1, save_best_only=True)
 
-dense.summary()
-
 # Bi-LSTM
-bilstm = Sequential()
 
 bilstm_path = "bilstm"
-
 pool_size = 2
 
-bilstm.add(Input(shape=(512,768)))
-bilstm.add(Bidirectional(LSTM(20, return_sequences=True, dropout=0.25, recurrent_dropout=0.2)))
-bilstm.add(MaxPooling1D(pool_size = pool_size))
-bilstm.add(Flatten())
-bilstm.add(Dense(10, activation='relu', kernel_initializer='he_uniform'))
-bilstm.add(Dense(1, activation='sigmoid'))
+bilstm_model = tf.keras.Sequential([
+    layers.Input(shape=(512,768)),
+    layers.Bidirectional(layers.LSTM(20, return_sequences=True, dropout=0.25, recurrent_dropout=0.2)),
+    layers.MaxPooling1D(pool_size=pool_size),
+    layers.Flatten(),
+    layers.Dense(10, activation='relu', kernel_initializer='he_uniform'),
+    layers.Dense(1, activation='sigmoid')
+])
 
-
-bilstm.compile(optimizer='adam',
+bilstm_model.compile(optimizer='adam',
               loss='binary_crossentropy',
               metrics=['accuracy'])
 
+bilstm_model.summary()
+
 mc = ModelCheckpoint(bilstm_path + ".h5", monitor='val_accuracy', mode='max', verbose=1, save_best_only=True)
+
 
 bilstm.summary()

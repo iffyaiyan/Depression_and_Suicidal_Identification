@@ -1,25 +1,15 @@
-# Web-Scraper for Reddit Data
-
-# Data used for paper and results were last scraped in September 2020. 
-# Adapted from (https://github.com/hesamuel/goodbye_world/blob/master/code/01_Data_Collection.ipynb
-
-# data analysis imports
+# Importing required packages
+import requests
+import time
 import numpy as np
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
-
-# NLP Imports
 import nltk
-nltk.download('wordnet')
-nltk.download('stopwords')
 from nltk.tokenize import RegexpTokenizer
 from nltk.stem import WordNetLemmatizer
 from nltk.corpus import stopwords
-import re
-
 from sklearn.feature_extraction.text import CountVectorizer
-
 from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
 from PIL import Image
 import wordninja
@@ -72,17 +62,15 @@ def create_unique_list(original_scrape_list, new_list_name):
     #CHECKING IF THE NEW LIST IS OF SAME LENGTH AS UNIQUE POSTS
     print("LIST NOW CONTAINS {} UNIQUE SCRAPED POSTS".format(len(new_list_name)))
 
-# scraping suicide_watch data
+# Scraping suicide_watch data
 suicide_data = []
 reddit_scrape("https://www.reddit.com/r/SuicideWatch.json", 50, suicide_data)
-
 suicide_data_unique = []
 create_unique_list(suicide_data, suicide_data_unique)
 
-# add suicide_watch to dataframe
+# Adding suicide_watch data to the dataframe
 suicide_watch = pd.DataFrame(suicide_data_unique)
 suicide_watch["is_suicide"] = 1
-suicide_watch.head()
 
 # scraping suicide_watch data
 depression_data = []
